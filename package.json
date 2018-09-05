@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "lib/index.js",
   "bin": {
-    "semver-publish": "lib/index.js"
+    "semver-publish": "bin/index.js"
   },
   "scripts": {
     "compile": "babel lib --out-dir bin",
