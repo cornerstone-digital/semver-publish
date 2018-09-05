@@ -5,6 +5,7 @@
   "author": "Martin Egan <martingegan@gmail.com>",
   "license": "MIT",
   "main": "lib/index.js",
+  "bin": "lib/index.js",
   "scripts": {
     "semver-publish": "babel-node ./lib/index.js"
   },
