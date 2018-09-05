@@ -1,0 +1,23 @@
+{
+  "presets": ["env"],
+  "plugins": [
+    "transform-class-properties",
+    [
+      "module-resolver",
+      {
+        "root": [ "./" ],
+        "alias": {
+          "@helpers": "lib/helpers",
+          "@actions": "lib/actions"
+        }
+      }
+    ],
+    "transform-object-rest-spread"
+  ],
+  "env": {
+    "test": {
+      "presets": [ "env" ],
+      "plugins": [ "transform-class-properties" ]
+    }
+  }
+}
