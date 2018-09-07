@@ -17,7 +17,8 @@
     "shell-quote": "1.6.1",
     "shelljs": "0.8.2",
     "simple-git": "1.96.0",
-    "update-notifier": "2.5.0"
+    "update-notifier": "2.5.0",
+    "version-exists": "0.0.4"
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
