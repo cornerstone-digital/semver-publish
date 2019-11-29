@@ -1,6 +1,6 @@
 {
   "name": "semver-publish",
-  "version": "1.5.1-next.1",
+  "version": "1.5.1-next.2",
   "repository": "git@github.com:cornerstone-digital/semver-publish.git",
   "author": "Martin Egan <martingegan@gmail.com>",
   "license": "MIT",
