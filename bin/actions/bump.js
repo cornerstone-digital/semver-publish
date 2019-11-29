@@ -12,7 +12,7 @@ var logger = require('debug')('Semver-Bump');
 var defaultOptions = {
   increment: 'prerelease',
   root: '.',
-  identifier: ''
+  identifier: 'next'
 };
 
 var bumpAction = function () {

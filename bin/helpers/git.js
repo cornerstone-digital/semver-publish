@@ -1,5 +1,7 @@
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -49,6 +51,13 @@ var GitClient = function () {
     value: function setBranch(branchName) {
       this.branch = branchName;
       logger('Branch set to "' + branchName + '"');
+
+      return this;
+    }
+  }, {
+    key: 'setNoVerify',
+    value: function setNoVerify(value) {
+      this.noVerify = value;
 
       return this;
     }
@@ -112,6 +121,7 @@ var GitClient = function () {
                   });
 
 
+                  console.log(changes);
                   if (changes.length) {
                     dirty = true;
                   }
@@ -196,6 +206,7 @@ var GitClient = function () {
     key: 'commit',
     value: function () {
       var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(message) {
+        var commitOptions;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
@@ -210,30 +221,40 @@ var GitClient = function () {
 
               case 3:
                 _context4.prev = 3;
-                _context4.next = 6;
-                return this.client.commit(message);
+                commitOptions = {};
 
-              case 6:
+
+                if (this.noVerify) {
+                  commitOptions = _extends({}, commitOptions, {
+                    '--no-verify': null
+                  });
+                }
+
+                _context4.next = 8;
+                return this.client.commit(message, null, commitOptions);
+
+              case 8:
+
                 logger('Commit successful:', message);
-                _context4.next = 13;
+                _context4.next = 15;
                 break;
 
-              case 9:
-                _context4.prev = 9;
+              case 11:
+                _context4.prev = 11;
                 _context4.t0 = _context4['catch'](3);
 
                 logger('Commit failed:', _context4.t0);
                 process.exit(1);
 
-              case 13:
+              case 15:
                 return _context4.abrupt('return', this);
 
-              case 14:
+              case 16:
               case 'end':
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[3, 9]]);
+        }, _callee4, this, [[3, 11]]);
       }));
 
       function commit(_x2) {
@@ -293,29 +314,81 @@ var GitClient = function () {
       return addTag;
     }()
   }, {
-    key: 'mergeFromTo',
+    key: 'deleteTag',
     value: function () {
-      var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(from, to) {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(tagName) {
+        var tagOptions;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
               case 0:
-                _context6.next = 2;
-                return this.client.mergeFromTo(from, to);
+                if (!this.dryRun) {
+                  _context6.next = 3;
+                  break;
+                }
 
-              case 2:
+                logger('Dry Run: Tag deleted:', tagName);
                 return _context6.abrupt('return', this);
 
               case 3:
+                _context6.prev = 3;
+                tagOptions = ['--delete', '' + tagName];
+                _context6.next = 7;
+                return this.client.tag(tagOptions);
+
+              case 7:
+                logger('Tag deleted:', tagName);
+                _context6.next = 14;
+                break;
+
+              case 10:
+                _context6.prev = 10;
+                _context6.t0 = _context6['catch'](3);
+
+                logger('Tag deletion failed:', _context6.t0);
+                process.exit(1);
+
+              case 14:
+                return _context6.abrupt('return', this);
+
+              case 15:
               case 'end':
                 return _context6.stop();
             }
           }
-        }, _callee6, this);
+        }, _callee6, this, [[3, 10]]);
       }));
 
-      function mergeFromTo(_x4, _x5) {
+      function deleteTag(_x4) {
         return _ref6.apply(this, arguments);
+      }
+
+      return deleteTag;
+    }()
+  }, {
+    key: 'mergeFromTo',
+    value: function () {
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(from, to) {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                _context7.next = 2;
+                return this.client.mergeFromTo(from, to);
+
+              case 2:
+                return _context7.abrupt('return', this);
+
+              case 3:
+              case 'end':
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      function mergeFromTo(_x5, _x6) {
+        return _ref7.apply(this, arguments);
       }
 
       return mergeFromTo;
@@ -323,59 +396,7 @@ var GitClient = function () {
   }, {
     key: 'push',
     value: function () {
-      var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(remote, branch) {
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                if (!this.dryRun) {
-                  _context7.next = 3;
-                  break;
-                }
-
-                logger('Dry Run: Files pushed to:', remote + ':' + branch);
-                return _context7.abrupt('return', this);
-
-              case 3:
-                _context7.prev = 3;
-
-                logger('Pushing to ' + branch);
-                _context7.next = 7;
-                return this.client.push(remote, branch);
-
-              case 7:
-                logger('Files pushed to:', remote + ':' + branch);
-                _context7.next = 14;
-                break;
-
-              case 10:
-                _context7.prev = 10;
-                _context7.t0 = _context7['catch'](3);
-
-                logger('Push failed:', _context7.t0);
-                process.exit(1);
-
-              case 14:
-                return _context7.abrupt('return', this);
-
-              case 15:
-              case 'end':
-                return _context7.stop();
-            }
-          }
-        }, _callee7, this, [[3, 10]]);
-      }));
-
-      function push(_x6, _x7) {
-        return _ref7.apply(this, arguments);
-      }
-
-      return push;
-    }()
-  }, {
-    key: 'pushTags',
-    value: function () {
-      var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
+      var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(remote, branch) {
         return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
             switch (_context8.prev = _context8.next) {
@@ -385,39 +406,91 @@ var GitClient = function () {
                   break;
                 }
 
-                logger('Dry Run: Tags pushed to:', this.remote);
+                logger('Dry Run: Files pushed to:', remote + ':' + branch);
                 return _context8.abrupt('return', this);
 
               case 3:
                 _context8.prev = 3;
-                _context8.next = 6;
-                return this.client.pushTags(this.remote);
 
-              case 6:
-                logger('Tags pushed to:', this.remote);
-                _context8.next = 13;
+                logger('Pushing to ' + branch);
+                _context8.next = 7;
+                return this.client.push(remote, branch);
+
+              case 7:
+                logger('Files pushed to:', remote + ':' + branch);
+                _context8.next = 14;
                 break;
 
-              case 9:
-                _context8.prev = 9;
+              case 10:
+                _context8.prev = 10;
                 _context8.t0 = _context8['catch'](3);
 
-                logger('Failed to push tags:', _context8.t0);
+                logger('Push failed:', _context8.t0);
                 process.exit(1);
 
-              case 13:
+              case 14:
                 return _context8.abrupt('return', this);
 
-              case 14:
+              case 15:
               case 'end':
                 return _context8.stop();
             }
           }
-        }, _callee8, this, [[3, 9]]);
+        }, _callee8, this, [[3, 10]]);
+      }));
+
+      function push(_x7, _x8) {
+        return _ref8.apply(this, arguments);
+      }
+
+      return push;
+    }()
+  }, {
+    key: 'pushTags',
+    value: function () {
+      var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                if (!this.dryRun) {
+                  _context9.next = 3;
+                  break;
+                }
+
+                logger('Dry Run: Tags pushed to:', this.remote);
+                return _context9.abrupt('return', this);
+
+              case 3:
+                _context9.prev = 3;
+                _context9.next = 6;
+                return this.client.pushTags(this.remote);
+
+              case 6:
+                logger('Tags pushed to:', this.remote);
+                _context9.next = 13;
+                break;
+
+              case 9:
+                _context9.prev = 9;
+                _context9.t0 = _context9['catch'](3);
+
+                logger('Failed to push tags:', _context9.t0);
+                process.exit(1);
+
+              case 13:
+                return _context9.abrupt('return', this);
+
+              case 14:
+              case 'end':
+                return _context9.stop();
+            }
+          }
+        }, _callee9, this, [[3, 9]]);
       }));
 
       function pushTags() {
-        return _ref8.apply(this, arguments);
+        return _ref9.apply(this, arguments);
       }
 
       return pushTags;

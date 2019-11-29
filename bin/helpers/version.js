@@ -10,7 +10,7 @@ module.exports.nextVersion = function (version, increment, identifier) {
 
       return resolve(bumpedVer);
     } catch (e) {
-      console.log(e);
+      console.log('Error', e);
       return reject(new Error(e));
     }
   });
